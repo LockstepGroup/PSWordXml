@@ -37,9 +37,9 @@ function New-WordDocFromTemplate {
     }
 
     # extract document
-    $ResolvedOutputPath = Resolve-Path $OutputPath
+    $ResolvedOutputDirectory = Split-Path -Path $OutputPath | Resolve-Path
     $ResolvedTemplatePath = Resolve-Path -Path $TemplatePath
-    $ExtractDirectory = Join-Path -Path (Split-Path -Path $ResolvedOutputPath) -ChildPath 'WordXml'
+    $ExtractDirectory = Join-Path -Path (Split-Path -Path $ResolvedOutputDirectory) -ChildPath 'WordXml'
     # cleanup old junk if needed
     if (Test-Path -Path $ExtractDirectory) {
         Remove-Item -Path $ExtractDirectory -Recurse -Force
