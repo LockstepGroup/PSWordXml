@@ -2,7 +2,7 @@ function Add-WordContent {
     [cmdletbinding()]
     Param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $True, Position = 0)]
-        [System.Xml.XmlElement[]]$Content
+        [System.Xml.XmlElement]$Content
     )
 
     Begin {
@@ -17,8 +17,7 @@ function Add-WordContent {
     }
     Process {
         Write-Verbose "$VerbosePrefix adding content"
-        $global:contenttest = $Content
-        $ImportNode = $DocumentContents.ImportNode($Content[0], $true)
+        $ImportNode = $DocumentContents.ImportNode($Content, $true)
         $DocumentContents.document.body.AppendChild($ImportNode) | Out-Null
     }
 
