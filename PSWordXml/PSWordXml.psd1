@@ -30,7 +30,7 @@
     Copyright         = '(c) Lockstep Technology Group. All rights reserved.'
 
     # Description of the functionality provided by this module
-    # Description = ''
+    Description       = 'Module for creating word documents purely in Xml.'
 
     # Minimum version of the PowerShell engine required by this module
     # PowerShellVersion = ''
