@@ -6,15 +6,19 @@ function New-WordRun {
 
         [Parameter(Mandatory = $false, ValueFromPipeline = $false, Position = 1)]
         [string]$Style,
+        #TODO: need to figure out why hyperlinks are getting style quite right.
 
         [Parameter(ParameterSetName = 'Text', Mandatory = $false)]
         [switch]$NoNewLine,
 
+        [Parameter(ParameterSetName = 'Text', Mandatory = $false)]
+        [switch]$Bold,
+
         [Parameter(ParameterSetName = 'LineBreak', Mandatory = $false)]
         [switch]$LineBreak,
 
-        [Parameter(ParameterSetName = 'Text', Mandatory = $false)]
-        [switch]$Bold
+        [Parameter(ParameterSetName = 'PageBreak', Mandatory = $false)]
+        [switch]$PageBreak
     )
 
     $VerbosePrefix = "New-WordRun:"
@@ -32,16 +36,49 @@ function New-WordRun {
         $OutputXml += '    <w:hyperlink xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" w:history="1">'
     }
     $OutputXml += '    <w:r>'
-    if ($Style) {
+    if ($Style -or $Bold) {
         $OutputXml += '        <w:rPr>'
+    }
+    if ($Style) {
         $OutputXml += '             <w:rStyle w:val="' + $Style + '"/>'
+    }
+    if ($Bold) {
+        $OutputXml += '             <w:b/>'
+    }
+    if ($Style -or $Bold) {
         $OutputXml += '        </w:rPr>'
     }
-    if ($LineBreak) {
-        $OutputXml += '        <w:br/>'
-    } else {
+
+    #############################################################
+    #region Text
+
+    if (-not $LineBreak -and -not $PageBreak) {
         $OutputXml += '        <w:t' + $Preserve + '>' + $Text + '</w:t>'
     }
+
+    #endregion Text
+    #############################################################
+
+    #############################################################
+    #region PageBreak
+
+    if ($LineBreak) {
+        $OutputXml += '        <w:br/>'
+    }
+
+    #endregion PageBreak
+    #############################################################
+
+    #############################################################
+    #region PageBreak
+
+    if ($PageBreak) {
+        $OutputXml += '        <w:br w:type="page"/>'
+    }
+
+    #endregion PageBreak
+    #############################################################
+
     $OutputXml += '    </w:r>'
     if ($Style -eq 'HyperLink') {
         $OutputXml += '    </w:hyperlink>'
@@ -62,32 +99,3 @@ function New-WordRun {
 
     $Output
 }
-
-<#
-
-<w:rPr>
-                    <w:b/>
-                </w:rPr>
-<w:p w14:paraId="346B3CB9" w14:textId="69F7CD0E" w:rsidR="00577F56" w:rsidRPr="00577F56" w:rsidRDefault="00867423" w:rsidP="000B2256"
-    xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
-    xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-    <w:pPr>
-        <w:pStyle w:val="Subtitle" />
-    </w:pPr>
-    <w:r>
-        <w:t>Josh Sanders</w:t>
-    </w:r>
-    <w:r w:rsidR="00342F64">
-        <w:br />
-    </w:r>
-    <w:hyperlink r:id="rId9" w:history="1"
-        xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-        <w:r w:rsidR="00577F56" w:rsidRPr="00FD02CE">
-            <w:rPr>
-                <w:rStyle w:val="Hyperlink" />
-            </w:rPr>
-            <w:t>jsanders@lockstepgroup.com</w:t>
-        </w:r>
-    </w:hyperlink>
-</w:p>
-#>

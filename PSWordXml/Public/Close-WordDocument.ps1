@@ -28,6 +28,7 @@ function Close-WordDocument {
             # had to do this to stop zip from adding the root dir to the zip file
             Push-Location -Path $global:OpenWordDocument
             zip -r $TemporaryZipPath ./* | Out-Null
+            #Compress-Archive -Path ./* -DestinationPath $TemporaryZipPath
             Pop-Location
             Move-Item -Path $TemporaryZipPath -Destination $OutputPath -Force:$Force
             break
@@ -36,6 +37,7 @@ function Close-WordDocument {
             Throw "need to add code for zipping on non-macos"
         }
     }
+
 
     Remove-Item -Path $global:OpenWordDocument -Recurse -Force:$Force
     Remove-Variable -Name OpenWordDocument -Scope global

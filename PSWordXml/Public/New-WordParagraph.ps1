@@ -20,10 +20,8 @@ function New-WordParagraph {
         Write-Verbose "$VerbosePrefix ParameterSetname: $($PSCmdlet.ParameterSetName)"
 
         $ParagraphXml = @()
-        $ParagraphXml += '<doc>'
-        $ParagraphXml += '<w:p w14:paraId="" w14:textId="" w:rsidR="" w:rsidRDefault="" w:rsidP=""'
-        $ParagraphXml += '    xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"'
-        $ParagraphXml += '    xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        $ParagraphXml += '<doc xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        $ParagraphXml += '<w:p w14:paraId="" w14:textId="" w:rsidR="" w:rsidRDefault="" w:rsidP="">'
         if ($Style) {
             $ParagraphXml += '    <w:pPr>'
             $ParagraphXml += '        <w:pStyle w:val="' + $Style + '" />'
@@ -79,8 +77,6 @@ function New-WordParagraph {
             'Run' {
                 #import run
                 Write-Verbose "$VerbosePrefix adding run"
-                $global:testpara = $ParagraphXml
-                $global:testrun = $Run
                 $ImportNode = $ParagraphXml.ImportNode($Run, $true)
                 $ParagraphXml.doc.p.AppendChild($ImportNode) | Out-Null
             }

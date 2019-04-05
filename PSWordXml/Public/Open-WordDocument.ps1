@@ -34,7 +34,7 @@ function Open-WordDocument {
     $ResolvedOutputPath = Resolve-Path -Path $OutputPath
     $ResolvedInputPath = Resolve-Path -Path $Path
 
-    # unzip docx
+    <# # unzip docx
     switch -Regex ($OperatingSystem) {
         'MacOS' {
             unzip $ResolvedInputPath -d $ResolvedOutputPath | Out-Null
@@ -43,7 +43,9 @@ function Open-WordDocument {
         default {
             Throw "need to add code for unzipping on non-macos"
         }
-    }
+    } #>
+
+    Expand-Archive -Path $ResolvedInputPath -DestinationPath $ResolvedOutputPath
 
     $global:OpenWordDocument = $ResolvedOutputPath
 }
