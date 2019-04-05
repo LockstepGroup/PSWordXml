@@ -23,20 +23,24 @@ function Close-WordDocument {
     $TemporaryZipPath = Join-Path $OutputDirectory -ChildPath 'doc.zip'
 
     # zip docx
+    # had to do this to stop zip from adding the root dir to the zip file
+    Push-Location -Path $global:OpenWordDocument
+
     switch -Regex ($OperatingSystem) {
         'MacOS' {
-            # had to do this to stop zip from adding the root dir to the zip file
-            Push-Location -Path $global:OpenWordDocument
+            # Compress-Archive in macos breaks the file for some reason.
             zip -r $TemporaryZipPath ./* | Out-Null
-            #Compress-Archive -Path ./* -DestinationPath $TemporaryZipPath
-            Pop-Location
-            Move-Item -Path $TemporaryZipPath -Destination $OutputPath -Force:$Force
             break
         }
         default {
-            Throw "need to add code for zipping on non-macos"
+            Compress-Archive -Path ./* -DestinationPath $TemporaryZipPath
+            break
         }
+
     }
+    # pop back to original location and move .zip to .docx
+    Pop-Location
+    Move-Item -Path $TemporaryZipPath -Destination $OutputPath -Force:$Force
 
 
     Remove-Item -Path $global:OpenWordDocument -Recurse -Force:$Force
