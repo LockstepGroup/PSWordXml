@@ -33,8 +33,12 @@ function Open-WordDocument {
     }
     $ResolvedOutputPath = Resolve-Path -Path $OutputPath
     $ResolvedInputPath = Resolve-Path -Path $Path
+    $ResolvedZipInputPath = Join-Path -Path (Split-Path -Path $ResolvedInputPath) -ChildPath ((Get-ChildItem -Path $ResolvedInputPath).BaseName + '.zip')
 
-    Expand-Archive -Path $ResolvedInputPath -DestinationPath $ResolvedOutputPath
+    # have to do this for Expand-Archive to work
+    Copy-Item -Path $ResolvedInputPath -Destination $ResolvedZipInputPath -Force:$Force
+    Expand-Archive -Path $ResolvedZipInputPath -DestinationPath $ResolvedOutputPath -Force:$Force
+    Remove-Item -Path $ResolvedZipInputPath -Force:$Force
 
     $global:OpenWordDocument = $ResolvedOutputPath
 }

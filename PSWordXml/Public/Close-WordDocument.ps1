@@ -36,8 +36,8 @@ function Close-WordDocument {
             Compress-Archive -Path ./* -DestinationPath $TemporaryZipPath
             break
         }
-
     }
+
     # pop back to original location and move .zip to .docx
     Pop-Location
     Move-Item -Path $TemporaryZipPath -Destination $OutputPath -Force:$Force
