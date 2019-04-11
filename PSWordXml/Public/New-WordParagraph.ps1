@@ -1,17 +1,10 @@
 function New-WordParagraph {
-    [cmdletbinding(DefaultParameterSetName = 'Run')]
+    [cmdletbinding()]
     Param (
-        [Parameter(ParameterSetName = 'Text', Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
-        [string]$Text,
-
-        [Parameter(ParameterSetName = 'Text', Mandatory = $false)]
-        [switch]$Bold,
-
-        [Parameter(ParameterSetName = 'Run', Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
         [System.Xml.XmlElement]$Run,
 
-        [Parameter(ParameterSetName = 'Text', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'Run', Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [string]$Style
     )
 
