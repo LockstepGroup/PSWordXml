@@ -25,6 +25,9 @@ function New-WordRun {
     )
 
     $VerbosePrefix = "New-WordRun:"
+    Write-Verbose "#############################################################"
+    Write-Verbose "$VerbosePrefix Starting"
+
 
     #############################################################
     #region XmlSetup
@@ -83,16 +86,41 @@ function New-WordRun {
     #region CreateRunNode
     Switch ($PSCmdlet.ParameterSetName) {
         'Text' {
-            # NoNewLine
-            if ($NoNewLine) {
-                $TextNode.SetAttribute('space', $XmlNamespaceUri, 'preserve') | Out-Null
+            $ResolvedText = Resolve-WordText -Text $Text
+            Write-Verbose "$VerbosePrefix ResolvedText Count: $($ResolvedText.Count)"
+            if ($ResolvedText.Count -gt 1) {
+                $ResolvedRuns = @()
+                $RunCount = 1
+                foreach ($t in $ResolvedText) {
+                    Write-Verbose "-------------------------------------------------------------"
+                    Write-Verbose "$VerbosePrefix Getting ResolvedRun: $($t.Text)"
+                    Write-Verbose "$VerbosePrefix Bold: $($t.Bold)"
+                    Write-Verbose "$VerbosePrefix Italic: $($t.Italic)"
+                    $RunParams = @{}
+                    $RunParams.Text = $t.Text
+                    $RunParams.Bold = $t.Bold
+                    $RunParams.Italic = $t.Italic
+                    if ($RunCount -lt $ResolvedText.Count) {
+                        Write-Verbose "$VerbosePrefix Adding NoNewLine"
+                        $RunParams.NoNewLine = $true
+                    }
+                    $ResolvedRuns += New-WordRun @RunParams
+                    $RunCount++
+                }
+                Write-Verbose "$VerbosePrefix ResolvedRuns Count: $($ResolvedRuns.Count)"
+            } else {
+                Write-Verbose "$VerbosePrefix single text entry"
+                # NoNewLine
+                if ($NoNewLine) {
+                    $TextNode.SetAttribute('space', $XmlNamespaceUri, 'preserve') | Out-Null
+                }
+
+                # add text
+                $TextNode.InnerText = $ResolvedText.Text
+
+                # append to RunNode
+                $RunNode.AppendChild($TextNode) | Out-Null
             }
-
-            # add text
-            $TextNode.InnerText = $Text
-
-            # append to RunNode
-            $RunNode.AppendChild($TextNode) | Out-Null
         }
         'LineBreak' {
             $RunNode.AppendChild($BreakNode) | Out-Null
@@ -109,7 +137,18 @@ function New-WordRun {
     #region Output
 
     # Append to paragraph node for output
-    $ParagraphNode.AppendChild($RunNode) | Out-Null
+    if ($ResolvedText.Count -gt 1) {
+        #$Global:ResolvedRuns = $ResolvedRuns
+        Write-Verbose "$VerbosePrefix adding multiple runs to paragraph: $($ResolvedRuns.Count)"
+        foreach ($run in $ResolvedRuns) {
+
+            $ImportNode = $RootDocument.ImportNode($run, $true)
+            $ParagraphNode.AppendChild($ImportNode) | Out-Null
+        }
+    } else {
+        Write-Verbose "$VerbosePrefix adding single run to paragraph: $Text"
+        $ParagraphNode.AppendChild($RunNode) | Out-Null
+    }
 
     # Append to RootDocument so namespaces are summarized properly
     $RootDocument.AppendChild($ParagraphNode) | Out-Null

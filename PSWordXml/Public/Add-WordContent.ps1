@@ -19,6 +19,12 @@ function Add-WordContent {
         $DocumentXmlPath = Join-Path -Path $global:OpenWordDocument -ChildPath word/document.xml
         $RootDocument = [xml](Get-Content -Path $DocumentXmlPath)
 
+        # Add Namespaces to document now that there are some contents
+        $WNamespaceUri = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+        $XmlNamespaceUri = 'http://www.w3.org/XML/1998/namespace'
+        $RootDocument.DocumentElement.SetAttribute('xmlns:w', $WNamespaceUri)
+        $RootDocument.DocumentElement.SetAttribute('xmlns:xml', $XmlNamespaceUri)
+
         #endregion XmlSetup
         #############################################################
 
@@ -39,12 +45,6 @@ function Add-WordContent {
     End {
         #############################################################
         #region Output
-
-        # Add Namespaces to document now that there are some contents
-        $WNamespaceUri = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
-        $XmlNamespaceUri = 'http://www.w3.org/XML/1998/namespace'
-        $RootDocument.DocumentElement.SetAttribute('xmlns:w', $WNamespaceUri)
-        $RootDocument.DocumentElement.SetAttribute('xmlns:xml', $XmlNamespaceUri)
 
         # Output back to document.xml
         $global:root = $RootDocument
