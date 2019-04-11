@@ -30,78 +30,52 @@ function New-WordParagraph {
 
         # Stage Xml Nodes
         $ParagraphNode = $RootDocument.CreateNode('element', 'w', 'p', $WNamespaceUri)
-        $ParagraphRunFormattingNode = $RootDocument.CreateNode('element', 'w', 'pPr', $WNamespaceUri)
+        $ParagraphFormattingNode = $RootDocument.CreateNode('element', 'w', 'pPr', $WNamespaceUri)
+        $ParagraphStyleNode = $RootDocument.CreateNode('element', 'w', 'pStyle', $WNamespaceUri)
 
         #endregion XmlSetup
         #############################################################
 
-        Write-Verbose "$VerbosePrefix ParameterSetname: $($PSCmdlet.ParameterSetName)"
+        #############################################################
+        #region Formatting
 
-        $ParagraphXml = @()
-        $ParagraphXml += '<doc xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-        $ParagraphXml += '<w:p w14:paraId="" w14:textId="" w:rsidR="" w:rsidRDefault="" w:rsidP="">'
+        # Style
         if ($Style) {
-            $ParagraphXml += '    <w:pPr>'
-            $ParagraphXml += '        <w:pStyle w:val="' + $Style + '" />'
-            $ParagraphXml += '    </w:pPr>'
+            $ParagraphStyleNode.SetAttribute('val', $WNamespaceUri, $Style) | Out-Null
+            $ParagraphFormattingNode.AppendChild($ParagraphStyleNode) | Out-Null
+            $ParagraphNode.AppendChild($ParagraphFormattingNode) | Out-Null
         }
 
-        Switch ($PSCmdlet.ParameterSetName) {
-            'Run' {
-                # close out xml
-                $ParagraphXml += '    </w:p>'
-                $ParagraphXml += '</doc>'
-
-                # convert text to xml
-                $ParagraphXml = $ParagraphXml -join "`n"
-                $ParagraphXml = [xml]$ParagraphXml
-            }
-        }
+        #endregion Formatting
+        #############################################################
     }
 
-    # begin process
     Process {
-        Switch ($PSCmdlet.ParameterSetName) {
-            'Text' {
-                $SplitTextOnLineBreak = $Text.Split("`r`n")
-                $i = 0
-                foreach ($line in $SplitTextOnLineBreak) {
-                    $i++
-                    $ParagraphXml += '    <w:r>'
-                    if ($Bold) {
-                        $ParagraphXml += '    <w:rPr>'
-                        $ParagraphXml += '        <w:b/>'
-                        $ParagraphXml += '    </w:rPr>'
-                    }
-                    $ParagraphXml += '        <w:t>' + $line + '</w:t>'
-                    $ParagraphXml += '    </w:r>'
+        #############################################################
+        #region AddRun
 
-                    if ($i -lt $SplitTextOnLineBreak.Count) {
-                        # add line break for all except last line
-                        $ParagraphXml += '    <w:r w:rsidR="">'
-                        $ParagraphXml += '        <w:br />'
-                        $ParagraphXml += '    </w:r>'
-                    }
-                }
+        $ImportNode = $RootDocument.ImportNode($Run, $true)
+        $ParagraphNode.AppendChild($ImportNode) | Out-Null
 
-                # close out xml
-                $ParagraphXml += '    </w:p>'
-                $ParagraphXml += '</doc>'
-
-                # convert text to xml
-                $ParagraphXml = $ParagraphXml -join "`n"
-                $ParagraphXml = [xml]$ParagraphXml
-            }
-            'Run' {
-                #import run
-                Write-Verbose "$VerbosePrefix adding run"
-                $ImportNode = $ParagraphXml.ImportNode($Run, $true)
-                $ParagraphXml.doc.p.AppendChild($ImportNode) | Out-Null
-            }
-        }
+        #endregion AddRun
+        #############################################################
     }
 
     End {
-        return $ParagraphXml.doc.p
+        #############################################################
+        #region Output
+
+        # Append to RootDocument so namespaces are summarized properly
+        $RootDocument.AppendChild($ParagraphNode) | Out-Null
+
+        # Add Namespaces to document now that there are some contents
+        $RootDocument.DocumentElement.SetAttribute('xmlns:w', $WNamespaceUri)
+        $RootDocument.DocumentElement.SetAttribute('xmlns:xml', $XmlNamespaceUri)
+
+        # return just the runs
+        $RootDocument.p
+
+        #endregion Output
+        #############################################################
     }
 }

@@ -121,6 +121,6 @@ function New-WordRun {
     # return just the runs
     $ParagraphNode.ChildNodes
 
-    #endregion CreateRunNode
+    #endregion Output
     #############################################################
 }
