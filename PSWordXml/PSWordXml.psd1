@@ -95,19 +95,22 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            # Tags = @()
+            Tags         = @('xml', 'msword', 'word', 'office')
 
             # A URL to the license for this module.
-            # LicenseUri = ''
+            LicenseUri   = 'https://raw.githubusercontent.com/LockstepGroup/PSWordXml/master/LICENSE'
 
             # A URL to the main website for this project.
-            # ProjectUri = ''
+            ProjectUri   = 'https://github.com/LockstepGroup/PSWordXml'
 
             # A URL to an icon representing this module.
             # IconUri = ''
 
             # ReleaseNotes of this module
-            # ReleaseNotes = ''
+            ReleaseNotes = @"
+Added handling of markdown in Text for Bold and Italics.
+Migrated Plaintext that was converted to XML to native XML.
+"@
 
         } # End of PSData hashtable
 
@@ -120,6 +123,7 @@
     # DefaultCommandPrefix = ''
 
 }
+
 
 
 
