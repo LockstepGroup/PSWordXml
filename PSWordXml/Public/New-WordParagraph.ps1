@@ -17,6 +17,31 @@ function New-WordParagraph {
 
     Begin {
         $VerbosePrefix = "New-WordParagraph:"
+
+        #############################################################
+        #region XmlSetup
+
+        # Create RootDocument
+        [xml]$RootDocument = New-Object System.Xml.XmlDocument
+
+        # NamespaceUris
+        # These are needed for setting attributes.
+        # Namespaces have to be added to the xml doc after it has contents.
+        # So we do that in the output region.
+        $WNamespaceUri = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+        $XmlNamespaceUri = 'http://www.w3.org/XML/1998/namespace'
+
+        # Add xml Declaration
+        $Declaration = $RootDocument.CreateXmlDeclaration("1.0", "UTF-8", 'yes')
+        $RootDocument.AppendChild($Declaration) | Out-Null
+
+        # Stage Xml Nodes
+        $ParagraphNode = $RootDocument.CreateNode('element', 'w', 'p', $WNamespaceUri)
+        $ParagraphRunFormattingNode = $RootDocument.CreateNode('element', 'w', 'pPr', $WNamespaceUri)
+
+        #endregion XmlSetup
+        #############################################################
+
         Write-Verbose "$VerbosePrefix ParameterSetname: $($PSCmdlet.ParameterSetName)"
 
         $ParagraphXml = @()
