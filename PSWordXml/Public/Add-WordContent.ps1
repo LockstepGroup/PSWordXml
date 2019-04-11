@@ -12,16 +12,45 @@ function Add-WordContent {
             Throw "$VerbosePrefix No open Word Document, use Open-WordDocument to get started."
         }
 
+        #############################################################
+        #region XmlSetup
+
+        # Import Xml from $global:OpenWordDocument
         $DocumentXmlPath = Join-Path -Path $global:OpenWordDocument -ChildPath word/document.xml
-        $DocumentContents = [xml](Get-Content -Path $DocumentXmlPath)
+        $RootDocument = [xml](Get-Content -Path $DocumentXmlPath)
+
+        #endregion XmlSetup
+        #############################################################
+
+
     }
     Process {
+        #############################################################
+        #region AddNodes
+
         Write-Verbose "$VerbosePrefix adding content"
-        $ImportNode = $DocumentContents.ImportNode($Content, $true)
-        $DocumentContents.document.body.AppendChild($ImportNode) | Out-Null
+        $ImportNode = $RootDocument.ImportNode($Content, $true)
+        $RootDocument.document.body.AppendChild($ImportNode) | Out-Null
+
+        #endregion AddNodes
+        #############################################################
     }
 
     End {
-        $DocumentContents.OuterXml | Out-File -FilePath $DocumentXmlPath -Force
+        #############################################################
+        #region Output
+
+        # Add Namespaces to document now that there are some contents
+        $WNamespaceUri = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+        $XmlNamespaceUri = 'http://www.w3.org/XML/1998/namespace'
+        $RootDocument.DocumentElement.SetAttribute('xmlns:w', $WNamespaceUri)
+        $RootDocument.DocumentElement.SetAttribute('xmlns:xml', $XmlNamespaceUri)
+
+        # Output back to document.xml
+        $global:root = $RootDocument
+        $RootDocument.OuterXml | Out-File -FilePath $DocumentXmlPath -Force
+
+        #endregion Output
+        #############################################################
     }
 }
