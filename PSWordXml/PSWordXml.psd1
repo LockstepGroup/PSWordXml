@@ -12,7 +12,7 @@
     RootModule        = 'PSWordXml'
 
     # Version number of this module.
-    ModuleVersion     = '1.0.3'
+    ModuleVersion     = '1.0.4'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -123,6 +123,7 @@ Migrated Plaintext that was converted to XML to native XML.
     # DefaultCommandPrefix = ''
 
 }
+
 
 
 
