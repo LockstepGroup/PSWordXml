@@ -33,6 +33,11 @@ function New-WordParagraph {
         $ParagraphFormattingNode = $RootDocument.CreateNode('element', 'w', 'pPr', $WNamespaceUri)
         $ParagraphStyleNode = $RootDocument.CreateNode('element', 'w', 'pStyle', $WNamespaceUri)
 
+        # List Xml Nodes
+        $ListNode = $RootDocument.CreateNode('element', 'w', 'numPr', $WNamespaceUri)
+        $IlvlNode = $RootDocument.CreateNode('element', 'w', 'ilvl', $WNamespaceUri)
+        $NumidNode = $RootDocument.CreateNode('element', 'w', 'numId', $WNamespaceUri)
+
         #endregion XmlSetup
         #############################################################
 
@@ -43,6 +48,13 @@ function New-WordParagraph {
         if ($Style) {
             $ParagraphStyleNode.SetAttribute('val', $WNamespaceUri, $Style) | Out-Null
             $ParagraphFormattingNode.AppendChild($ParagraphStyleNode) | Out-Null
+            if ($Style -match 'ListParagraph') {
+                $IlvlNode.SetAttribute('val', $WNamespaceUri, 0) | Out-Null
+                $NumidNode.SetAttribute('val', $WNamespaceUri, 8) | Out-Null
+                $ListNode.AppendChild($IlvlNode) | Out-Null
+                $ListNode.AppendChild($NumidNode) | Out-Null
+                $ParagraphFormattingNode.AppendChild($ListNode) | Out-Null
+            }
             $ParagraphNode.AppendChild($ParagraphFormattingNode) | Out-Null
         }
 

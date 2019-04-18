@@ -2,7 +2,11 @@ function New-WordTableCell {
     [cmdletbinding(DefaultParameterSetName = 'Text')]
     Param (
         [Parameter(ParameterSetName = 'Text', Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
-        [string]$Text
+        #[AllowEmptyString()]
+        [string]$Text,
+
+        [Parameter(ParameterSetName = 'Paragraph', Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
+        [System.Xml.XmlElement]$Paragraph
     )
 
     $VerbosePrefix = "New-WordTableCell:"
@@ -27,7 +31,10 @@ function New-WordTableCell {
     $OutputXml = [xml]$OutputXml
 
     # Content
-    $Paragraph = New-WordRun -Text $Text | New-WordParagraph
+    if ($Text) {
+        $Paragraph = New-WordRun -Text $Text | New-WordParagraph
+    }
+
     $ImportNode = $OutputXml.ImportNode($Paragraph, $true)
     $OutputXml.doc.tc.AppendChild($ImportNode) | Out-Null
 

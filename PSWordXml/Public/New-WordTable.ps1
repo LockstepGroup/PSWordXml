@@ -71,7 +71,13 @@ function New-WordTable {
             array {
                 $Cells = @()
                 foreach ($header in $Headers) {
-                    $Cells += New-WordTableCell -Text $DataArray.$header
+                    if ($DataArray.$header) {
+                        if (($DataArray.$header).GetType().FullName -eq 'System.Xml.XmlElement') {
+                            $Cells += New-WordTableCell -Paragraph $DataArray.$header
+                        } else {
+                            $Cells += New-WordTableCell -Text $DataArray.$header
+                        }
+                    }
                 }
                 $TheseRows += $Cells | New-WordTableRow
             }

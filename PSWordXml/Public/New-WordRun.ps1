@@ -22,6 +22,10 @@ function New-WordRun {
 
         [Parameter(ParameterSetName = 'PageBreak', Mandatory = $false)]
         [switch]$PageBreak
+        ,
+
+        [Parameter(ParameterSetName = 'Text', Mandatory = $false)]
+        [switch]$NoMarkdown
     )
 
     $VerbosePrefix = "New-WordRun:"
@@ -86,7 +90,14 @@ function New-WordRun {
     #region CreateRunNode
     Switch ($PSCmdlet.ParameterSetName) {
         'Text' {
-            $ResolvedText = Resolve-WordText -Text $Text
+            if ($NoMarkdown) {
+                $ResolvedText = "" | Select-Object -Property Text, Bold, Italic
+                $ResolvedText.Text = $Text
+                $ResolvedText.Bold = $false
+                $ResolvedText.Italic = $false
+            } else {
+                $ResolvedText = Resolve-WordText -Text $Text
+            }
             Write-Verbose "$VerbosePrefix ResolvedText Count: $($ResolvedText.Count)"
             if ($ResolvedText.Count -gt 1) {
                 $ResolvedRuns = @()
@@ -116,7 +127,7 @@ function New-WordRun {
                 }
 
                 # add text
-                $TextNode.InnerText = $ResolvedText.Text
+                $TextNode.InnerText = $ExecutionContext.InvokeCommand.ExpandString($ResolvedText.Text)
 
                 # append to RunNode
                 $RunNode.AppendChild($TextNode) | Out-Null
@@ -126,7 +137,7 @@ function New-WordRun {
             $RunNode.AppendChild($BreakNode) | Out-Null
         }
         'PageBreak' {
-            $BreakNode.SetAttribute('type', $WNamespaceUri, 'page')
+            $BreakNode.SetAttribute('type', $WNamespaceUri, 'page') | Out-Null
             $RunNode.AppendChild($BreakNode) | Out-Null
         }
     }
