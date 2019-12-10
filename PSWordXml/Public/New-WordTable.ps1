@@ -69,17 +69,22 @@ function New-WordTable {
                 $TheseRows += $Row
             }
             array {
-                $Cells = @()
-                foreach ($header in $Headers) {
-                    if ($DataArray.$header) {
-                        if (($DataArray.$header).GetType().FullName -eq 'System.Xml.XmlElement') {
-                            $Cells += New-WordTableCell -Paragraph $DataArray.$header
-                        } else {
-                            $Cells += New-WordTableCell -Text $DataArray.$header
+                foreach ($entry in $DataArray) {
+                    $Cells = @()
+                    foreach ($header in $Headers) {
+                        Write-Verbose "$VerbosePrefix adding header: $header"
+                        if ($entry.$header) {
+                            if (($entry.$header).GetType().FullName -eq 'System.Xml.XmlElement') {
+                                $Cells += New-WordTableCell -Paragraph $entry.$header
+                            } else {
+                                Write-Verbose "$VerbosePrefix provided value is plain text"
+                                Write-Verbose "$VerbosePrefix adding cell with value: $($entry.header)"
+                                $Cells += New-WordTableCell -Text $entry.$header
+                            }
                         }
                     }
+                    $TheseRows += $Cells | New-WordTableRow
                 }
-                $TheseRows += $Cells | New-WordTableRow
             }
         }
     }
