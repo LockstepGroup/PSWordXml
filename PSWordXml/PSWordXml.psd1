@@ -108,8 +108,7 @@
 
             # ReleaseNotes of this module
             ReleaseNotes = @"
-Added handling of markdown in Text for Bold and Italics.
-Migrated Plaintext that was converted to XML to native XML.
+Fixed an issue with New-WordTable.
 "@
 
         } # End of PSData hashtable
@@ -123,6 +122,7 @@ Migrated Plaintext that was converted to XML to native XML.
     # DefaultCommandPrefix = ''
 
 }
+
 
 
 
